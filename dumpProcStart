@@ -1,0 +1,66 @@
+#!/bin/bash
+
+# Function to retrieve process stats on a single host
+get_process_stats() {
+  local process_name=$1
+  local process_IDs=`pgrep $process_name`
+  for pid in $process_IDs; do
+    local command_name=`ps -p $pid -o comm | sed -n '2p'`
+    local timestamp=`date "+%H:%M:%S"`
+    local memory_usage=`ps -p $pid -o rss | sed -n '2p'`
+    local runtime=`ps -p $pid -o etime | sed -n '2p' | xargs`
+    echo "$command_name $HOSTNAME $timestamp $memory_usage $runtime"
+  done
+}
+
+
+# Function to iterate over the hosts and retrieve process stats
+iterate_hosts() {
+  local process_name=$1
+  local period=$2
+  local hostfile=$3
+
+
+  # Read the hostfile and store hosts in an array
+  local hosts=`cat $hostfile | xargs`
+
+
+  # Iterate over the hosts array
+  start_time=`date +%s`
+  for host in $hosts; do
+    ssh -n "$host" "$(typeset -f); get_process_stats $process_name"
+  done
+  # Sleep for the specified period
+  end_time=`date +%s`
+  cycle_time=$((end_time - start_time))
+  sleep $((period - cycle_time)) 2>/dev/null
+}
+
+# Main script logic
+log_file="./process.log"
+
+if [[ $# -lt 1 ]]; then
+  echo "Usage: dumpProcStat <process_name> [<period>] [<hostfile>]"
+  exit 1
+fi
+
+process_name=$1
+period=${2:-0}
+hostfile=${3:-""}
+
+echo "PROC_NAME  HOST_NAME  TIME  MEMORY  RUNTIME" | tee $log_file
+
+if [[ -n $hostfile ]]; then
+  cmd="iterate_hosts $process_name $period $hostfile"
+else
+  cmd="get_process_stats $process_name"
+fi
+
+for (( ; ; )) do
+  $cmd | tee -a $log_file
+  read -t 0.1 -n 1 input
+  if [[ $input = "q" ]]; then
+    break
+  fi
+done
+

@@ -1,0 +1,25 @@
+Please create a program which will track and report memory and runtime statistics of given processes over hosts.
+
+Program should work on Linux, should be executed from bash command line
+
+Usage:
+
+dumpProcStat <process_name> <period> <hostfile>
+
+                process name – Required argument. Type: string. Program should track the processes which names contain this string.
+
+                hostfile – Optional argument. Type: string name of a file which contains list of hostnames line-by-line The program should continuously look for processes and report statistics on all these hosts sequentially. By default should work on current host.
+
+                period – Optional argument. Is the period of iteration in seconds. Default is 0
+
+ 
+
+program output should be sent to standard output and to output file and should look like
+
+<process name> <hostname> <time of check> <memory> <runtime>
+
+<process name> <hostname> <time of check> <memory> <runtime>
+
+….
+
+<process name> <hostname> <time of check> <memory> <runtime>

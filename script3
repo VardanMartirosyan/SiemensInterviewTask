@@ -1,0 +1,19 @@
+#!/usr/bin/bash
+
+create_random_array() {
+    local array=()  # Create an empty array
+
+    for ((i=0; i<3000; i++)); do
+        random_element=$((RANDOM % 100))  # Generate a random number between 0 and 99
+        array+=($random_element)  # Append the random element to the array
+    done
+
+    #echo "${array[@]}"  # Print the array elements
+}
+
+# Call the function
+create_random_array
+
+
+
+sleep 1000

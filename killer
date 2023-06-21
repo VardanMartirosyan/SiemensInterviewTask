@@ -1,0 +1,2 @@
+pgrep script | xargs kill -9
+pgrep sleep | xargs kill -9
